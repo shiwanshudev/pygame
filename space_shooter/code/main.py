@@ -1,5 +1,7 @@
 # import pygame
 import pygame
+from random import randint
+from os.path import join # for fixing imports
 
 # initialize pygame
 pygame.init()
@@ -17,8 +19,17 @@ running = True
 
 # surface
 surf = pygame.Surface((100, 200))
+x = 100
+y = 150
 
 
+
+# importing an image
+player_surface = pygame.image.load(join('images', 'player.png')).convert_alpha()
+star_surface = pygame.image.load(join('images', 'star.png')).convert_alpha()
+
+# star positions
+star_positions = [(randint(0, WINDOW_WIDTH), randint(0, WINDOW_HEIGHT)) for i in range(20)]
 # game loop
 while running:
     # handle quitting game
@@ -31,7 +42,13 @@ while running:
     display_surface.fill('darkgray')
 
     # blit = Block image transfer (Just a way to put one surface over another surface)
-    display_surface.blit(surf,(100, 150))
+    x += 0.5
+   
+    for pos in star_positions:
+        display_surface.blit(star_surface,pos)
+    
+     # display_surface.blit(surf,(x, y))
+    display_surface.blit(player_surface, (x,y))
 
     # draw the game
     pygame.display.update()
