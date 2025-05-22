@@ -26,7 +26,17 @@ y = 150
 
 # importing an image
 player_surface = pygame.image.load(join('images', 'player.png')).convert_alpha()
+player_rect = player_surface.get_frect(center=(WINDOW_WIDTH/2,WINDOW_HEIGHT/2))
+# is_right = True
+direction = 1
+
 star_surface = pygame.image.load(join('images', 'star.png')).convert_alpha()
+
+meteor_surface = pygame.image.load(join('images', 'meteor.png')).convert_alpha()
+meteor_rect = meteor_surface.get_frect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/2))
+
+laser_surface = pygame.image.load(join('images', 'laser.png')).convert_alpha()
+laser_rect = laser_surface.get_frect(bottomleft=(20,WINDOW_HEIGHT -20))
 
 # star positions
 star_positions = [(randint(0, WINDOW_WIDTH), randint(0, WINDOW_HEIGHT)) for i in range(20)]
@@ -42,13 +52,32 @@ while running:
     display_surface.fill('darkgray')
 
     # blit = Block image transfer (Just a way to put one surface over another surface)
-    x += 0.5
+    # x += 0.5
    
     for pos in star_positions:
         display_surface.blit(star_surface,pos)
     
+    display_surface.blit(meteor_surface, meteor_rect)
+    display_surface.blit(laser_surface, laser_rect)
+
      # display_surface.blit(surf,(x, y))
-    display_surface.blit(player_surface, (x,y))
+     #player movement
+    # if player_rect.right < WINDOW_WIDTH and is_right:
+    #     player_rect.left += 0.5
+
+    # if player_rect.right == WINDOW_WIDTH:
+    #     is_right= False
+
+    # if not is_right and player_rect.left >0:
+    #     player_rect.left -= 0.5
+
+    # if player_rect.left == 0:
+    #     is_right= True
+
+    if player_rect.left < 0 or player_rect.right > WINDOW_WIDTH:
+        direction = -1 * direction
+    player_rect.left += direction * 0.5
+    display_surface.blit(player_surface, player_rect)
 
     # draw the game
     pygame.display.update()
