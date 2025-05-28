@@ -12,6 +12,18 @@ class Player(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2()
         self.speed = 300
 
+        # timer
+        self.can_shoot = True
+        self.shoot_timer = 0
+        self.cooldown_duration = 400
+    
+    def laser_timer(self):
+        if not self.can_shoot:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.shoot_timer >= self.cooldown_duration:
+                self.can_shoot = True
+                print("Laser ready to shoot")
+
     def update(self,dt):
         keys = pygame.key.get_pressed()
         self.direction.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])  
@@ -20,8 +32,13 @@ class Player(pygame.sprite.Sprite):
         self.rect.center += self.direction * self.speed * dt
 
         recent_keys = pygame.key.get_just_pressed()
-        if recent_keys[pygame.K_SPACE]:
-            print("SPACE")
+        if recent_keys[pygame.K_SPACE] and self.can_shoot:
+            laser = Laser(laser_surface, self.rect.midtop, all_sprites) 
+            self.shoot_timer = pygame.time.get_ticks()
+            self.can_shoot = False
+            print("Laser shot")
+
+        self.laser_timer()
 
 class Star(pygame.sprite.Sprite):
     def __init__(self, groups, surf):
@@ -29,6 +46,16 @@ class Star(pygame.sprite.Sprite):
         self.image = surf
         self.rect = self.image.get_frect(center=(randint(0, WINDOW_WIDTH), randint(0, WINDOW_HEIGHT)))
 
+class Laser(pygame.sprite.Sprite):
+    def __init__(self, surf, pos, groups):
+        super().__init__(groups)
+        self.image = surf
+        self.rect = self.image.get_frect(midbottom=pos)
+    
+    def update(self, dt):
+        self.rect.centery -= 400 * dt
+        if self.rect.bottom < 0:
+            self.kill()
 
 
 # initialize pygame
@@ -64,7 +91,9 @@ meteor_surface = pygame.image.load(join('images', 'meteor.png')).convert_alpha()
 meteor_rect = meteor_surface.get_frect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/2))
 
 laser_surface = pygame.image.load(join('images', 'laser.png')).convert_alpha()
-laser_rect = laser_surface.get_frect(bottomleft=(20,WINDOW_HEIGHT -20))
+
+meteor_event = pygame.event.custom_type()
+pygame.time.set_timer(meteor_event, 500)  # every half second
 
 # star positions
 # game loop
@@ -76,6 +105,8 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == meteor_event:
+            print("Create meteor")
 
     display_surface.fill('darkgray')
     
